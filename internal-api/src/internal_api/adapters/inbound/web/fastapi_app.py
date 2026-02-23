@@ -3,13 +3,16 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import Any
 
-from fastapi import FastAPI, Query, Request, Response
+from fastapi import FastAPI, Header, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from returns.result import Success
 
 from internal_api.core.domain.model.errors import (
+    IdempotencyFailed,
+    IdempotencyInProgress,
+    IdempotencyKeyConflict,
     OrderNotFound,
     OutOfStock,
     PaymentDeclined,
@@ -159,10 +162,15 @@ def create_app(
             503: {"model": ErrorResponse},
         },
     )
-    def place_order(req: PlaceOrderRequest, response: Response) -> Any:
+    def place_order(
+        req: PlaceOrderRequest,
+        response: Response,
+        idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
+    ) -> Any:
         cmd = PlaceOrderCommand(
             customer_id=req.customer_id,
             payment_token=req.payment_token,
+            idempotency_key=idempotency_key,
             lines=tuple(
                 PlaceOrderLine(
                     sku=ln.sku,
@@ -185,6 +193,11 @@ def create_app(
                 total=str(receipt.total.amount),
                 currency=receipt.total.currency,
             )
+
+        if isinstance(
+            result, (IdempotencyInProgress, IdempotencyFailed, IdempotencyKeyConflict)
+        ):
+            return 409, ErrorResponse(type=type(result).__name__, message=str(err))
 
         raise result.failure()
 

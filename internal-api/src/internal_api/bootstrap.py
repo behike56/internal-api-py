@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from internal_api.adapters.outbound.dummy_payment import DummyPaymentGateway
+from internal_api.adapters.outbound.in_memory_idempotency import (
+    InMemoryIdempotencyRepository,
+)
 from internal_api.adapters.outbound.in_memory_inventory import InMemoryInventory
 from internal_api.adapters.outbound.in_memory_orders import InMemoryOrderRepository
 from internal_api.adapters.outbound.stdout_events import StdoutEventPublisher
@@ -35,10 +38,16 @@ def build_usecases() -> UseCases:
     )
     orders = InMemoryOrderRepository()
     events = StdoutEventPublisher()
+    idempotency = InMemoryIdempotencyRepository()
 
     place_order = PlaceOrderService(
         PlaceOrderDeps(
-            inventory=inventory, payment=payment, orders=orders, events=events
+            inventory=inventory,
+            payment=payment,
+            orders=orders,
+            events=events,
+            idempotency=idempotency,
+            idempotency_ttl_seconds=120,
         )
     )
     get_order = GetOrderService(GetOrderDeps(orders=orders))

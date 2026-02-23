@@ -22,6 +22,7 @@ class PlaceOrderCommand:
     customer_id: str
     lines: Sequence[PlaceOrderLine]
     payment_token: str
+    idempotency_key: str | None = None
 
 
 @dataclass(frozen=True)
