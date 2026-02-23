@@ -1,5 +1,5 @@
 [project]
-name = "internal-api"
+name = "internal-api-oop"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-internal-api = "internal_api:main"
+internal-api = "internal_api_oop:main"
 
 [build-system]
 requires = ["uv_build>=0.9.17,<0.10.0"]
