@@ -1,0 +1,22 @@
+[project]
+name = "internal-api-fp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "behike56", email = "fxy.x@lambda-publishing.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.131.0",
+    "pydantic>=2.12.5",
+    "returns>=0.26.0",
+    "uvicorn>=0.34.0",
+]
+
+[project.scripts]
+internal-api-fp = "internal_api_fp:main"
+
+[build-system]
+requires = ["uv_build>=0.9.17,<0.10.0"]
+build-backend = "uv_build"
